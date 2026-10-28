@@ -457,6 +457,47 @@ audio{color-scheme:dark}
 .cnotes textarea{min-height:70px;resize:vertical}
 .csaved{font-size:13px;color:var(--tx-3);margin:-10px 0 18px}
 .csaved.ok{color:var(--em)}
+/* ---- кабинет руководителя (#admin) ---- */
+.sfoot .admlink{display:block;margin-top:12px;background:none;border:0;padding:0;color:var(--tx-3);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.sfoot .admlink:hover{color:var(--em)}
+.lgate-boss{display:block;margin:14px auto 0;background:none;border:0;color:var(--tx-3);font:inherit;font-size:13px;cursor:pointer;text-decoration:underline}
+.adm-login form{display:flex;gap:10px;flex-wrap:wrap}
+.adm-login input{flex:1;min-width:200px;font:inherit;font-size:15.5px;color:var(--tx);background:var(--bg-2);border:1px solid var(--line-2);border-radius:11px;padding:12px 14px}
+.adm-err{color:var(--co);font-size:14px;margin-top:10px;min-height:18px}
+.adm-muted{color:var(--tx-3);font-size:13px}
+.adm-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+.adm-bar .btn{padding:9px 16px;font-size:14px}
+.adm-bar .btn.on{border-color:var(--em);color:var(--em)}
+.adm-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:8px}
+.adm-kpis div{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.adm-kpis b{display:block;font-family:"Unbounded",sans-serif;font-size:28px;color:var(--tx)}
+.adm-kpis span{font-size:13px;color:var(--tx-3)}
+.adm-fn{display:grid;grid-template-columns:minmax(0,1.5fr) 3fr auto;gap:12px;align-items:center;margin:9px 0;font-size:14.5px}
+.adm-fb{height:10px;border-radius:9px;background:var(--line);overflow:hidden}
+.adm-fb i{display:block;height:100%;background:linear-gradient(90deg,var(--em-d),var(--em))}
+.adm-fn b{white-space:nowrap}
+.adm-t{width:100%;min-width:640px;border-collapse:collapse;font-size:14px;background:var(--surf);border:1px solid var(--line)}
+.adm-t th{text-align:left;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--tx-3);padding:12px 10px;border-bottom:1px solid var(--line)}
+.adm-t td{padding:10px;border-top:1px solid var(--line);vertical-align:top;color:var(--tx-2)}
+.adm-t td b{color:var(--tx)}
+.adm-list tr[data-lead]{cursor:pointer}
+.adm-list tr[data-lead]:hover td{background:var(--surf-2)}
+.adm-list tr.sel td{background:var(--em-glow)}
+.adm-pill{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;margin-right:4px;font-size:12.5px;font-weight:800;background:var(--line);color:var(--tx-3)}
+.adm-pill.wide{width:auto;padding:0 10px;border-radius:14px}
+.adm-pill.go{background:rgba(255,190,90,.18);color:#FFC879}
+.adm-pill.ok{background:var(--em-glow);color:var(--em)}
+.adm-pill.bad{background:var(--co-glow);color:var(--co)}
+.adm-det h3{margin:0 0 6px}
+.adm-det h4{font-size:15px;margin:22px 0 10px;color:var(--tx)}
+.adm-day{margin:14px 0}
+.adm-day>div{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.adm-pg{font-size:12.5px;padding:4px 10px;border-radius:14px;border:1px solid var(--line);color:var(--tx-3)}
+.adm-pg.on{color:var(--tx);border-color:var(--em-d)}
+.adm-note{margin:10px 0}.adm-note p{margin:4px 0 0;white-space:pre-wrap;color:var(--tx-2)}
+.adm-ev{display:flex;gap:12px;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px;color:var(--tx-2)}
+.adm-ev span{flex:0 0 120px;color:var(--tx-3)}
+@media(max-width:820px){.adm-kpis{grid-template-columns:1fr 1fr}.adm-fn{grid-template-columns:1fr auto}.adm-fn .adm-fb{grid-column:1/-1;grid-row:2}}
 @media print{.lgate,.lme,.csaved{display:none!important}.cnotes textarea{border:1px solid #999;background:#fff;color:#000}}
 </style>
 
@@ -472,6 +513,7 @@ audio{color-scheme:dark}
     <input id="lgPhone" name="tel" type="tel" maxlength="30" placeholder="+7 900 000-00-00" autocomplete="tel">
     <div class="lgate-err" id="lgErr"></div>
     <button class="btn" type="submit">Начать обучение</button>
+    <button class="lgate-boss" type="button" id="lgBoss">Я руководитель — открыть кабинет</button>
   </form>
 </div>
 <div class="app">
@@ -529,7 +571,7 @@ audio{color-scheme:dark}
     <button class="nv" data-p="qc"><em>✓</em>Чек-лист прослушки</button>
   </div>
 
-  <div class="sfoot">Жёлтым отмечено то, что заполняет РОП перед запуском обучения.</div>
+  <div class="sfoot">Жёлтым отмечено то, что заполняет РОП перед запуском обучения.<button type="button" class="admlink" data-go="admin">Кабинет руководителя</button></div>
 </aside>
 
 <main>
@@ -2024,11 +2066,19 @@ audio{color-scheme:dark}
     <div class="pnav no-print"><button class="btn gh" data-go="ctable">← Чек-лист обзвона</button><span></span></div>
   </div>
 </section>
+<section class="page" id="admin">
+  <div class="hero"><div class="hero-in">
+    <div class="kick">Только для руководителя</div>
+    <h2 class="tt">Кабинет руководителя</h2>
+    <p class="lede">Кто зашёл в Академию, сколько прошли каждый день и что записали при обзвоне конкурентов.</p>
+  </div></div>
+  <div class="wrap"><div id="admBody"></div></div>
+</section>
 </main>
 </div>
 
 <script>
-/* Учёт для кабинета руководителя (test.zvonar-ai.ru → Аналитика → Академия лидорубов).
+/* Учёт для кабинета руководителя (#admin в этой же Академии; данные на сервере t.zvonar-ai.ru).
    Имя и id браузера хранятся здесь; события копятся в очереди и уходят на сервер,
    когда есть связь. Таблица обзвона сохраняется целиком при каждом изменении. */
 (function(){
@@ -2127,10 +2177,13 @@ audio{color-scheme:dark}
     flush();
   });
   document.getElementById('lmeEdit').addEventListener('click',openGate);
+  function openAdmin(){ gate.hidden=true; var b=document.querySelector('[data-go="admin"]'); if(b) b.click(); }
+  document.getElementById('lgBoss').addEventListener('click',openAdmin);
 
   document.addEventListener('DOMContentLoaded',function(){
     initComp();
-    if(!me) openGate();
+    if(location.hash==='#admin') openAdmin();
+    else if(!me) openGate();
     else { showMe(); if(!ss('lin')){ ss('lin','1'); leadTrack('вход','',''); } flush(); if(compDirty) sendComp(); }
   });
 })();
@@ -2142,8 +2195,9 @@ audio{color-scheme:dark}
   function show(id){
     pages.forEach(function(p){p.classList.toggle('on',p.id===id)});
     navs.forEach(function(n){n.classList.toggle('on',n.dataset.p===id)});
-    seen[id]=1;
-    if(window.leadTrack) leadTrack('открыл', id);
+    if(id!=='admin') seen[id]=1;
+    if(id==='admin'){ var tb1=document.getElementById('tbsub'); if(tb1) tb1.textContent='Кабинет руководителя'; if(window.leadAdminOpen) leadAdminOpen(); }
+    else if(window.leadTrack) leadTrack('открыл', id);
     navs.forEach(function(n){if(seen[n.dataset.p])n.classList.add('done')});
     var tb=document.getElementById('tbsub');
     if(tb){var b=document.querySelector('.nv[data-p="'+id+'"]'); if(b) tb.textContent=b.textContent.trim()}
@@ -2266,6 +2320,136 @@ audio{color-scheme:dark}
   }catch(e){}
 
   show('why');
+})();
+</script>
+<script>
+/* Кабинет руководителя (#admin): вход по паролю кабинета «Профиль сотрудника», дальше по ключу на этом устройстве.
+   Данные — с сервера t.zvonar-ai.ru (тот же, куда Академия шлёт прогресс). */
+(function(){
+  var API='https://t.zvonar-ai.ru:8443/api/lead/';
+  var DAYS=[
+    {n:1,t:'Теория',pages:['p1','p2','p3','p5','p6','p7','p8','p10','p11','p4'],test:'p4'},
+    {n:2,t:'Слушаем и пробуем',pages:['calls','comp','p9']},
+    {n:3,t:'В работу',pages:['p12','crm','live','p13'],test:'p13'}
+  ];
+  var PAGE={why:'Сколько ты заработаешь',p1:'Кто мы и что продаём',p2:'Путь клиента',p3:'Твоя роль и цифры',p5:'Как мы говорим',p6:'Вход: три «да»',p7:'Шесть вопросов',p8:'Презентация встречи',p10:'Возражения',p11:'Запись и фиксация',p4:'Тест первого дня',calls:'Прослушка звонков',comp:'Обзвон конкурентов',p9:'Ролевые сценарии',p12:'Регламент работы',crm:'Знакомство с CRM',live:'Первые живые клиенты',p13:'Аттестация',fullscript:'Скрипт целиком',memo:'Шпаргалка на стол',ctable:'Чек-лист обзвона',qc:'Чек-лист прослушки'};
+  var COLS=['Компания','Как представились','Вопросов до цены','Назвали цену','Звали на встречу','Что забираю себе'];
+  var st={data:null,sel:null,days:30,err:''};
+  var box=document.getElementById('admBody');
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function token(v){try{if(v===undefined)return localStorage.getItem('leadAdmin')||'';if(v)localStorage.setItem('leadAdmin',v);else localStorage.removeItem('leadAdmin')}catch(e){return ''}}
+  function dt(ms){return ms?new Date(ms).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—'}
+  function firms(n){return n%10===1&&n%100!==11?'компания':n%10>=2&&n%10<=4&&(n%100<10||n%100>=20)?'компании':'компаний'}
+  function call(kind,body){
+    return fetch(API+kind,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)})
+      .then(function(r){return r.json().then(function(d){d._status=r.status;return d})});
+  }
+  function analyze(p){
+    var days=DAYS.map(function(d){
+      var opened=d.pages.filter(function(id){return (p.opened||{})[id]}).length, test=d.test?(p.tests||{})[d.test]:null;
+      return {opened:opened,total:d.pages.length,test:test,done:opened===d.pages.length&&(!d.test||!!(test&&test.pass))};
+    });
+    var passed=0; while(passed<days.length&&days[passed].done) passed++;
+    return {days:days,passed:passed,comp:((p.comp&&p.comp.rows)||[]).filter(function(r){return r[0]}).length};
+  }
+  function evText(e){
+    if(e.ev==='вход') return e.value==='первый'?'Первый вход':'Зашёл в Академию';
+    if(e.ev==='открыл') return 'Открыл «'+(PAGE[e.item]||e.item)+'»'+(e.value==='раньше'?' (до учёта)':'');
+    if(e.ev==='тест') return (PAGE[e.item]||e.item)+': '+e.value;
+    return e.ev+' '+e.item;
+  }
+
+  function loginView(msg){
+    box.innerHTML='<div class="card adm-login"><div class="tag">Вход для руководителя</div>'+
+      '<p>Пароль — тот же, что от кабинета «Профиль сотрудника». На этом устройстве вход запомнится.</p>'+
+      '<form id="admForm"><input id="admPass" type="password" placeholder="Пароль" autocomplete="current-password"><button class="btn" type="submit">Войти</button></form>'+
+      '<div class="adm-err">'+esc(msg||'')+'</div></div>';
+    document.getElementById('admForm').addEventListener('submit',function(e){
+      e.preventDefault();
+      var pw=document.getElementById('admPass').value; if(!pw) return;
+      call('login',{password:pw}).then(function(d){
+        if(!d.ok) return loginView(d.error||'Не удалось войти');
+        token(d.token); load();
+      },function(){loginView('Нет связи с сервером. Проверьте интернет.')});
+    });
+  }
+  function load(){
+    if(!token()) return loginView();
+    if(!st.data) box.innerHTML='<p class="adm-muted">Загружаю…</p>';
+    call('dash',{token:token()}).then(function(d){
+      if(d._status===401){token(null);return loginView('Войдите заново');}
+      if(!d.ok) throw 0;
+      st.data=d; st.at=Date.now(); render();
+    },function(){ if(!st.data) box.innerHTML='<p class="adm-muted">Нет связи с сервером. Нажмите «Обновить» чуть позже.</p>'; });
+  }
+
+  function render(){
+    var D=st.data, from=st.days?Date.now()-st.days*864e5:0;
+    var all=D.people.filter(function(p){return (p.last||0)>=from}).map(function(p){return {p:p,a:analyze(p)}})
+      .sort(function(x,y){return (y.p.last||0)-(x.p.last||0)});
+    var top=Math.max(1,all.length), visits=all.reduce(function(s,x){return s+(x.p.visits||0)},0);
+    var bar='<div class="adm-bar">'+[[7,'7 дней'],[30,'30 дней'],[0,'Всё время']].map(function(x){
+        return '<button class="btn gh'+(st.days===x[0]?' on':'')+'" data-adays="'+x[0]+'">'+x[1]+'</button>'}).join('')+
+      '<button class="btn gh" data-aact="refresh">Обновить</button><button class="btn gh" data-aact="logout">Выйти</button>'+
+      '<span class="adm-muted">Обновлено '+new Date(st.at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+'</span></div>';
+    if(!all.length){ box.innerHTML=bar+'<div class="card"><p>За выбранный период никто не заходил. Лидоруб появится здесь, как только откроет Академию и напишет имя.</p></div>'; return; }
+
+    var steps=[['Зашли',all.length]].concat(DAYS.map(function(d,i){return ['Прошли День '+d.n+' · '+d.t, all.filter(function(x){return x.a.passed>i}).length]}));
+    var funnel=steps.map(function(s){var pc=Math.round(s[1]/top*100);
+      return '<div class="adm-fn"><span>'+esc(s[0])+'</span><span class="adm-fb"><i style="width:'+pc+'%"></i></span><b>'+s[1]+' · '+pc+'%</b></div>'}).join('');
+    function pill(dd,d){return '<span class="adm-pill '+(dd.done?'ok':dd.opened?'go':'')+'" title="День '+d.n+': открыто '+dd.opened+' из '+dd.total+(dd.test?', тест '+esc(dd.test.last):'')+'">'+d.n+'</span>'}
+    function tcell(t){return t?'<span class="adm-pill wide '+(t.pass?'ok':'bad')+'">'+(t.pass?'сдал':'не сдал')+'</span> <span class="adm-muted">'+esc(String(t.last).split(' ')[0])+(t.tries>1?' · попыток '+t.tries:'')+'</span>':'<span class="adm-muted">—</span>'}
+    var rows=all.map(function(x){var p=x.p,a=x.a;
+      return '<tr data-lead="'+esc(p.id)+'"'+(st.sel===p.id?' class="sel"':'')+'><td><b>'+esc(p.name||'Без имени')+'</b><div class="adm-muted">'+esc(p.phone||'')+'</div></td>'+
+        '<td>'+a.days.map(function(dd,i){return pill(dd,DAYS[i])}).join('')+'</td><td>'+tcell((p.tests||{}).p4)+'</td><td>'+tcell((p.tests||{}).p13)+'</td>'+
+        '<td>'+(a.comp?a.comp+' '+firms(a.comp):'<span class="adm-muted">—</span>')+'</td><td>'+(p.visits||0)+'</td><td>'+dt(p.last)+'</td></tr>'}).join('');
+
+    // все компании из обзвона
+    var F={};
+    all.forEach(function(x){((x.p.comp&&x.p.comp.rows)||[]).forEach(function(r){
+      var nm=String(r[0]||'').trim(); if(!nm) return;
+      var k=nm.toLowerCase().replace(/[«»"'.,]/g,'').replace(/\s+/g,' '), f=F[k]||(F[k]={nm:nm,who:[],take:[],price:[]});
+      if(f.who.indexOf(x.p.name)<0) f.who.push(x.p.name); if(r[5]) f.take.push(r[5]); if(r[3]) f.price.push(r[3]);
+    })});
+    var fl=Object.keys(F).map(function(k){return F[k]}).sort(function(a,b){return b.who.length-a.who.length||a.nm.localeCompare(b.nm,'ru')});
+    var firmsHtml=fl.length?'<div class="ctab-wrap"><table class="adm-t"><tr><th>Компания</th><th>Звонили</th><th>Назвали цену</th><th>Что забрали себе</th></tr>'+
+      fl.map(function(f){return '<tr><td><b>'+esc(f.nm)+'</b></td><td>'+f.who.length+'<div class="adm-muted">'+esc(f.who.join(', '))+'</div></td><td>'+(esc(f.price.join(' · '))||'—')+'</td><td>'+(esc(f.take.join(' · '))||'—')+'</td></tr>'}).join('')+'</table></div>'
+      :'<p class="adm-muted">Таблицы обзвона ещё никто не заполнял.</p>';
+
+    var det='', sel=all.filter(function(x){return x.p.id===st.sel})[0];
+    if(sel){
+      var p=sel.p, a=sel.a, c=p.comp||{rows:[],notes:{}}, op=p.opened||{}, n=c.notes||{};
+      det='<div class="card adm-det"><h3>'+esc(p.name||'Без имени')+'</h3><p class="adm-muted">'+(p.phone?esc(p.phone)+' · ':'')+'первый вход: '+dt(p.first)+' · последний: '+dt(p.last)+' · заходов: '+(p.visits||0)+'</p>'+
+        DAYS.map(function(d,i){var dd=a.days[i];
+          return '<div class="adm-day"><b>День '+d.n+' · '+esc(d.t)+'</b> <span class="adm-muted">'+(dd.done?'пройден':'открыто '+dd.opened+' из '+dd.total)+(dd.test?' · тест: '+esc(dd.test.last):d.test?' · тест не сдавал':'')+'</span><div>'+
+            d.pages.map(function(id){return '<span class="adm-pg'+(op[id]?' on':'')+'" title="'+(op[id]?'впервые '+dt(op[id]):'не открывал')+'">'+(op[id]?'✓ ':'')+esc(PAGE[id])+'</span>'}).join('')+'</div></div>'}).join('')+
+        '<h4>Обзвон конкурентов'+(c.at?' <span class="adm-muted">· сохранено '+dt(c.at)+'</span>':'')+'</h4>'+
+        ((c.rows||[]).length?'<div class="ctab-wrap"><table class="adm-t"><tr><th>№</th>'+COLS.map(function(x){return '<th>'+x+'</th>'}).join('')+'</tr>'+
+          c.rows.map(function(r,i){return '<tr><td>'+(i+1)+'</td>'+r.map(function(x){return '<td>'+esc(x)+'</td>'}).join('')+'</tr>'}).join('')+'</table></div>'
+          :'<p class="adm-muted">Таблицу обзвона пока не заполнял.</p>')+
+        [['Лучший приём',n.best],['Худшая ошибка',n.worst],['Поехал бы к',n.fav]].filter(function(x){return x[1]}).map(function(x){return '<div class="adm-note"><b>'+x[0]+'</b><p>'+esc(x[1])+'</p></div>'}).join('')+
+        '<h4>Последние действия</h4>'+((p.recent||[]).slice().reverse().slice(0,25).map(function(e){return '<div class="adm-ev"><span>'+esc(dt(e.at))+'</span>'+esc(evText(e))+'</div>'}).join('')||'<p class="adm-muted">Действий пока нет.</p>')+'</div>';
+    }
+
+    box.innerHTML=bar+
+      '<div class="adm-kpis"><div><b>'+visits+'</b><span>всего заходов</span></div><div><b>'+all.length+'</b><span>человек зашло</span></div>'+
+      '<div><b>'+all.filter(function(x){return Date.now()-(x.p.last||0)<3*864e5}).length+'</b><span>заходили за 3 дня</span></div><div><b>'+all.filter(function(x){return x.a.passed>=3}).length+'</b><span>прошли все 3 дня</span></div></div>'+
+      '<div class="card"><div class="tag">Воронка обучения</div>'+funnel+'<p class="adm-muted" style="margin-top:12px">День засчитан, когда открыты все его разделы, а в Днях 1 и 3 ещё и сдан тест (тест первого дня, аттестация). Воронка накопительная: «Прошли День 2» — прошли и первый, и второй. Заход — каждое новое открытие Академии; один человек на двух телефонах считается дважды.</p></div>'+
+      '<h3><em>01</em>Лидорубы</h3><div class="ctab-wrap"><table class="adm-t adm-list"><tr><th>Лидоруб</th><th>Дни</th><th>Тест 1-го дня</th><th>Аттестация</th><th>Обзвон</th><th>Заходов</th><th>Последний вход</th></tr>'+rows+'</table></div>'+
+      '<p class="adm-muted">Нажмите на человека — откроются его разделы, таблица обзвона и выводы.</p>'+det+
+      '<h3><em>02</em>Все компании из обзвона конкурентов</h3>'+firmsHtml;
+  }
+
+  box.addEventListener('click',function(e){
+    var t=e.target.closest('[data-lead]'); if(t){st.sel=st.sel===t.dataset.lead?null:t.dataset.lead;render();return;}
+    var d=e.target.closest('[data-adays]'); if(d){st.days=+d.dataset.adays;render();return;}
+    var a=e.target.closest('[data-aact]'); if(!a) return;
+    if(a.dataset.aact==='refresh') load();
+    if(a.dataset.aact==='logout'){token(null);st.data=null;loginView();}
+  });
+  window.leadAdminOpen=load;
+  setInterval(function(){ if(!document.hidden && document.getElementById('admin').classList.contains('on') && token()) load(); },60000);
 })();
 </script>
 </body>
