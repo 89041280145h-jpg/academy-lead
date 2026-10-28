@@ -2028,17 +2028,17 @@ audio{color-scheme:dark}
 </div>
 
 <script>
-/* Учёт для панели руководителя (Академия «Дизайнер» → Панель → Лидорубы).
+/* Учёт для кабинета руководителя (test.zvonar-ai.ru → Аналитика → Академия лидорубов).
    Имя и id браузера хранятся здесь; события копятся в очереди и уходят на сервер,
    когда есть связь. Таблица обзвона сохраняется целиком при каждом изменении. */
 (function(){
-  var API='https://script.google.com/macros/s/AKfycbzZkeOmdHRKTV96vH4sENhmnM-MbhSSrDT_j3Li2XoCihrqhhELXWZNGF9shTg0Pxo1/exec';
+  var API='https://t.zvonar-ai.ru:8443/api/lead/';
   function ls(k,v){ try{ if(v===undefined) return JSON.parse(localStorage.getItem(k)||'null'); localStorage.setItem(k,JSON.stringify(v)); }catch(e){ return null; } }
   function ss(k,v){ try{ if(v===undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k,v); }catch(e){ return null; } }
   var me=ls('leadUser');
   function newSid(){ return 'L'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
-  function post(body){
-    return fetch(API,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
+  function post(kind,body){
+    return fetch(API+kind,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
   }
   function who(o){ o.sid=me.sid; o.name=me.name; o.phone=me.phone||''; return o; }
 
@@ -2048,7 +2048,7 @@ audio{color-scheme:dark}
     if(busy||!me||!q.length) return;
     busy=true;
     var part=q.slice(0,50);
-    post(who({action:'leadEvent',events:part})).then(function(){
+    post('ev',who({events:part})).then(function(){
       q=q.slice(part.length); ls('leadQ',q); busy=false;
       if(q.length) flush();
     },function(){ busy=false; qTimer=setTimeout(flush,30000); });
@@ -2078,7 +2078,7 @@ audio{color-scheme:dark}
     clearTimeout(cTimer); cTimer=null;
     if(!me) return;
     var d=compData(); compDirty=false;
-    post(who({action:'leadComp',rows:d.rows,notes:d.notes})).then(function(){
+    post('comp',who({rows:d.rows,notes:d.notes})).then(function(){
       mark('Сохранено — руководитель видит таблицу ✓',true);
     },function(){ compDirty=true; mark('Нет связи — сохранено на этом устройстве, отправим позже'); cTimer=setTimeout(sendComp,30000); });
   }
