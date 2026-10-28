@@ -437,10 +437,43 @@ audio{color-scheme:dark}
   .hero::after{display:none!important}
 }
 
+
+/* ---- вход по имени и учёт ---- */
+.lgate{position:fixed;inset:0;z-index:200;background:rgba(14,20,17,.86);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}
+.lgate[hidden]{display:none}
+.lgate-box{width:100%;max-width:440px;background:var(--surf);border:1px solid var(--line);border-radius:18px;padding:30px 28px;box-shadow:0 30px 80px -30px #000}
+.lgate-box h2{font-family:'Unbounded',sans-serif;font-size:22px;line-height:1.25;margin:0 0 8px;color:var(--tx)}
+.lgate-box p{color:var(--tx-2);font-size:14.5px;line-height:1.55;margin:0 0 18px}
+.lgate-box label{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx-3);margin:0 0 6px}
+.lgate-box input,.cnotes textarea{width:100%;box-sizing:border-box;font:inherit;font-size:15.5px;color:var(--tx);background:var(--bg-2);border:1px solid var(--line-2);border-radius:11px;padding:12px 14px;margin-bottom:14px}
+.lgate-box input:focus,.cnotes textarea:focus{outline:none;border-color:var(--em)}
+.lgate-box .btn{width:100%;margin-top:4px}
+.lgate-err{color:var(--co);font-size:13.5px;min-height:18px;margin:-6px 0 8px}
+.lme{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;color:var(--tx-3);margin:-16px 0 24px;padding:0 4px}
+.lme[hidden]{display:none}
+.lme b{color:var(--tx-2);font-weight:700}
+.lme button{background:none;border:0;color:var(--em);font:inherit;font-size:12.5px;cursor:pointer;padding:0}
+.cnotes label{display:block;font-weight:700;color:var(--tx);margin:4px 0 6px}
+.cnotes textarea{min-height:70px;resize:vertical}
+.csaved{font-size:13px;color:var(--tx-3);margin:-10px 0 18px}
+.csaved.ok{color:var(--em)}
+@media print{.lgate,.lme,.csaved{display:none!important}.cnotes textarea{border:1px solid #999;background:#fff;color:#000}}
 </style>
 
 </head>
 <body>
+<div class="lgate" id="lgate" hidden>
+  <form class="lgate-box" id="lgateForm" autocomplete="on">
+    <h2>Добро пожаловать в Академию</h2>
+    <p>Напиши, как тебя зовут. Так руководитель увидит твой прогресс и результаты обзвона конкурентов.</p>
+    <label for="lgName">Имя и фамилия</label>
+    <input id="lgName" name="name" type="text" maxlength="80" placeholder="Например: Мария Иванова" autocomplete="name">
+    <label for="lgPhone">Телефон <span style="text-transform:none;letter-spacing:0">(по желанию)</span></label>
+    <input id="lgPhone" name="tel" type="tel" maxlength="30" placeholder="+7 900 000-00-00" autocomplete="tel">
+    <div class="lgate-err" id="lgErr"></div>
+    <button class="btn" type="submit">Начать обучение</button>
+  </form>
+</div>
 <div class="app">
 
 <!-- ================= SIDEBAR ================= -->
@@ -453,6 +486,7 @@ audio{color-scheme:dark}
     </svg>
     <div><b>Академия<br>первичного контакта</b><span>3 дня · 22 раздела</span></div>
   </div>
+  <div class="lme" id="lme" hidden><span>Ты: <b id="lmeName"></b></span><button type="button" id="lmeEdit">изменить</button></div>
   <div class="prg">
     <div class="prg-t"><span>Прогресс</span><span id="ptxt">0 / 22</span></div>
     <div class="prg-b"><div class="prg-f" id="pfill"></div></div>
@@ -1934,7 +1968,13 @@ audio{color-scheme:dark}
         <li><strong>Худшую ошибку</strong>, которую точно не повторишь.</li>
         <li><strong>Одну компанию</strong>, к которой поехал бы сам, — и почему именно к ней.</li>
       </ol>
+      <div class="cnotes">
+        <label for="cnBest">Лучший приём</label><textarea id="cnBest" data-n="best" maxlength="1000"></textarea>
+        <label for="cnWorst">Худшая ошибка</label><textarea id="cnWorst" data-n="worst" maxlength="1000"></textarea>
+        <label for="cnFav">Куда поехал бы сам и почему</label><textarea id="cnFav" data-n="fav" maxlength="1000"></textarea>
+      </div>
     </div>
+    <div class="csaved no-print" id="csaved"></div>
 
     <div class="pnav no-print"><button class="btn gh" data-go="memo">← Шпаргалка на стол</button><button class="btn" data-go="qc">Чек-лист прослушки →</button></div>
   </div>
@@ -1988,6 +2028,114 @@ audio{color-scheme:dark}
 </div>
 
 <script>
+/* Учёт для панели руководителя (Академия «Дизайнер» → Панель → Лидорубы).
+   Имя и id браузера хранятся здесь; события копятся в очереди и уходят на сервер,
+   когда есть связь. Таблица обзвона сохраняется целиком при каждом изменении. */
+(function(){
+  var API='https://script.google.com/macros/s/AKfycbzZkeOmdHRKTV96vH4sENhmnM-MbhSSrDT_j3Li2XoCihrqhhELXWZNGF9shTg0Pxo1/exec';
+  function ls(k,v){ try{ if(v===undefined) return JSON.parse(localStorage.getItem(k)||'null'); localStorage.setItem(k,JSON.stringify(v)); }catch(e){ return null; } }
+  function ss(k,v){ try{ if(v===undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k,v); }catch(e){ return null; } }
+  var me=ls('leadUser');
+  function newSid(){ return 'L'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+  function post(body){
+    return fetch(API,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
+  }
+  function who(o){ o.sid=me.sid; o.name=me.name; o.phone=me.phone||''; return o; }
+
+  var q=ls('leadQ')||[], qTimer=null, busy=false;
+  function flush(){
+    clearTimeout(qTimer); qTimer=null;
+    if(busy||!me||!q.length) return;
+    busy=true;
+    var part=q.slice(0,50);
+    post(who({action:'leadEvent',events:part})).then(function(){
+      q=q.slice(part.length); ls('leadQ',q); busy=false;
+      if(q.length) flush();
+    },function(){ busy=false; qTimer=setTimeout(flush,30000); });
+  }
+  window.leadTrack=function(ev,item,value,now){
+    if(ev==='открыл'){ if(ss('lo_'+item)) return; ss('lo_'+item,'1'); }
+    q.push({event:ev,item:item||'',value:value||'',at:Date.now()}); ls('leadQ',q);
+    if(!me) return;
+    if(now) flush(); else if(!qTimer) qTimer=setTimeout(flush,2500);
+  };
+  document.addEventListener('visibilitychange',function(){ if(document.hidden){ flush(); if(compDirty) sendComp(); } });
+
+  // ---- таблица обзвона ----
+  var compDirty=false, cTimer=null;
+  function compData(){
+    var rows=[];
+    document.querySelectorAll('.ctab tr').forEach(function(tr){
+      var ins=tr.querySelectorAll('input'); if(!ins.length) return;
+      rows.push(Array.prototype.map.call(ins,function(i){return i.value}));
+    });
+    var notes={};
+    document.querySelectorAll('.cnotes textarea').forEach(function(t){ notes[t.dataset.n]=t.value; });
+    return {rows:rows,notes:notes};
+  }
+  function mark(t,ok){ var el=document.getElementById('csaved'); if(el){ el.textContent=t; el.className='csaved no-print'+(ok?' ok':''); } }
+  function sendComp(){
+    clearTimeout(cTimer); cTimer=null;
+    if(!me) return;
+    var d=compData(); compDirty=false;
+    post(who({action:'leadComp',rows:d.rows,notes:d.notes})).then(function(){
+      mark('Сохранено — руководитель видит таблицу ✓',true);
+    },function(){ compDirty=true; mark('Нет связи — сохранено на этом устройстве, отправим позже'); cTimer=setTimeout(sendComp,30000); });
+  }
+  function initComp(){
+    var saved=ls('leadComp')||{};
+    var r=0;
+    document.querySelectorAll('.ctab tr').forEach(function(tr){
+      var ins=tr.querySelectorAll('input'); if(!ins.length) return;
+      var row=(saved.rows||[])[r++]||[];
+      ins.forEach(function(i,j){ if(row[j]) i.value=row[j]; });
+    });
+    document.querySelectorAll('.cnotes textarea').forEach(function(t){ if(saved.notes&&saved.notes[t.dataset.n]) t.value=saved.notes[t.dataset.n]; });
+    var onInput=function(){
+      ls('leadComp',compData()); compDirty=true; mark('Сохраняю…');
+      clearTimeout(cTimer); cTimer=setTimeout(sendComp,2500);
+    };
+    document.querySelectorAll('.ctab input, .cnotes textarea').forEach(function(el){ el.addEventListener('input',onInput); });
+  }
+
+  // ---- вход по имени ----
+  var gate=document.getElementById('lgate');
+  function showMe(){
+    var b=document.getElementById('lme');
+    if(me&&b){ b.hidden=false; document.getElementById('lmeName').textContent=me.name; }
+  }
+  function openGate(){
+    document.getElementById('lgName').value=me?me.name:'';
+    document.getElementById('lgPhone').value=me?(me.phone||''):'';
+    gate.hidden=false; setTimeout(function(){document.getElementById('lgName').focus()},50);
+  }
+  document.getElementById('lgateForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var n=document.getElementById('lgName').value.trim().replace(/\s+/g,' ');
+    var ph=document.getElementById('lgPhone').value.trim();
+    if(n.length<2){ document.getElementById('lgErr').textContent='Напиши имя и фамилию'; return; }
+    var first=!me;
+    me={sid:me?me.sid:newSid(), name:n, phone:ph}; ls('leadUser',me);
+    gate.hidden=true; showMe();
+    if(first){
+      // разделы, открытые до появления учёта, тоже засчитываем
+      var seen=ls('acad_'+(location.pathname.split('/').pop()||'x'))||{};
+      Object.keys(seen).forEach(function(k){ q.push({event:'открыл',item:k,value:'раньше',at:Date.now()}); });
+      q.unshift({event:'вход',item:'',value:'первый',at:Date.now()}); ls('leadQ',q); ss('lin','1');
+      if(compData().rows.some(function(r){return r.some(function(c){return c})})) sendComp();
+    }
+    flush();
+  });
+  document.getElementById('lmeEdit').addEventListener('click',openGate);
+
+  document.addEventListener('DOMContentLoaded',function(){
+    initComp();
+    if(!me) openGate();
+    else { showMe(); if(!ss('lin')){ ss('lin','1'); leadTrack('вход','',''); } flush(); if(compDirty) sendComp(); }
+  });
+})();
+</script>
+<script>
 (function(){
   var pages=document.querySelectorAll('.page'), navs=document.querySelectorAll('.nv'), seen={}, T=navs.length;
   var KEY='acad_'+(location.pathname.split('/').pop()||'x');
@@ -1995,6 +2143,7 @@ audio{color-scheme:dark}
     pages.forEach(function(p){p.classList.toggle('on',p.id===id)});
     navs.forEach(function(n){n.classList.toggle('on',n.dataset.p===id)});
     seen[id]=1;
+    if(window.leadTrack) leadTrack('открыл', id);
     navs.forEach(function(n){if(seen[n.dataset.p])n.classList.add('done')});
     var tb=document.getElementById('tbsub');
     if(tb){var b=document.querySelector('.nv[data-p="'+id+'"]'); if(b) tb.textContent=b.textContent.trim()}
@@ -2023,6 +2172,7 @@ audio{color-scheme:dark}
         else{o[pick].classList.add('wrong');o[c].classList.add('right')}
       });
       res.classList.add('show');
+      if(!un && window.leadTrack){ var pg=z.closest('.page'); leadTrack('тест', pg?pg.id:'тест', sc+'/'+qs.length+(sc>=pass?' — сдал':' — не сдал'), true); }
       if(un){res.className='res show fail';res.textContent='Отвечено не на все вопросы: пропущено '+un+'. Результат: '+sc+' из '+qs.length+'.'}
       else if(sc>=pass){res.className='res show pass';res.textContent='Сдано: '+sc+' из '+qs.length+'. Проходной балл — '+pass+'.'}
       else{res.className='res show fail';res.textContent='Не сдано: '+sc+' из '+qs.length+'. Нужно минимум '+pass+'. Разбери ошибки с РОПом и пройди заново.'}
