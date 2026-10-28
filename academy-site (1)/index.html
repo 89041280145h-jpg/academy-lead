@@ -2323,7 +2323,7 @@ audio{color-scheme:dark}
 })();
 </script>
 <script>
-/* Кабинет руководителя (#admin): вход по паролю кабинета «Профиль сотрудника», дальше по ключу на этом устройстве.
+/* Кабинет руководителя (#admin): вход по своему коду (проверяет сервер), дальше по ключу на этом устройстве.
    Данные — с сервера t.zvonar-ai.ru (тот же, куда Академия шлёт прогресс). */
 (function(){
   var API='https://t.zvonar-ai.ru:8443/api/lead/';
@@ -2362,14 +2362,14 @@ audio{color-scheme:dark}
 
   function loginView(msg){
     box.innerHTML='<div class="card adm-login"><div class="tag">Вход для руководителя</div>'+
-      '<p>Пароль — тот же, что от кабинета «Профиль сотрудника». На этом устройстве вход запомнится.</p>'+
-      '<form id="admForm"><input id="admPass" type="password" placeholder="Пароль" autocomplete="current-password"><button class="btn" type="submit">Войти</button></form>'+
+      '<p>Введите код кабинета. На этом устройстве вход запомнится.</p>'+
+      '<form id="admForm"><input id="admPass" type="password" inputmode="decimal" placeholder="Код" autocomplete="current-password"><button class="btn" type="submit">Войти</button></form>'+
       '<div class="adm-err">'+esc(msg||'')+'</div></div>';
     document.getElementById('admForm').addEventListener('submit',function(e){
       e.preventDefault();
       var pw=document.getElementById('admPass').value; if(!pw) return;
       call('login',{password:pw}).then(function(d){
-        if(!d.ok) return loginView(d.error||'Не удалось войти');
+        if(!d.ok) return loginView(d._status===401?'Неверный код':(d.error||'Не удалось войти'));
         token(d.token); load();
       },function(){loginView('Нет связи с сервером. Проверьте интернет.')});
     });
